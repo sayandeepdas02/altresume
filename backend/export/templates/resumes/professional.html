@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Professional Resume</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Open+Sans:wght@400;600&display=swap');
+        @page { size: Letter; margin: 1in; }
+        body { font-family: 'Open Sans', sans-serif; color: #222; line-height: 1.6; font-size: 10.5pt; }
+        
+        .header { text-align: center; margin-bottom: 25px; }
+        .name { font-family: 'Merriweather', serif; font-size: 28pt; font-weight: 700; color: #000; margin: 0; }
+        .contact { color: #555; font-size: 10pt; margin-top: 5px; }
+        .contact span { margin: 0 8px; }
+        
+        h2 { font-family: 'Merriweather', serif; font-size: 13pt; color: #000; border-bottom: 2px solid #000; padding-bottom: 3px; margin-top: 20px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .skills { margin-bottom: 15px; }
+        
+        .item-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4px; }
+        .item-title { font-weight: 600; font-size: 11.5pt; color: #000; }
+        .item-subtitle { font-style: italic; color: #333; }
+        .item-date { font-size: 10pt; color: #666; font-style: italic; }
+        
+        ul { margin: 0 0 15px 0; padding-left: 20px; }
+        li { margin-bottom: 5px; text-align: justify; }
+        
+        .section { margin-bottom: 15px; page-break-inside: avoid; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="name">{{ data.name }}</h1>
+        <div class="contact">
+            {% if data.contact.email %}<span>{{ data.contact.email }}</span>{% endif %}
+            {% if data.contact.phone %}<span>| {{ data.contact.phone }}</span>{% endif %}
+            {% if data.contact.location %}<span>| {{ data.contact.location }}</span>{% endif %}
+            {% if data.contact.linkedin %}<span>| {{ data.contact.linkedin }}</span>{% endif %}
+        </div>
+    </div>
+
+    {% if data.skills %}
+    <h2>Technical Skills</h2>
+    <div class="skills">
+        <strong>Core Competencies:</strong> {{ data.skills|join:", " }}
+    </div>
+    {% endif %}
+
+    {% if data.experience %}
+    <h2>Professional Experience</h2>
+    {% for exp in data.experience %}
+    <div class="section">
+        <div class="item-header">
+            <div>
+                <span class="item-title">{{ exp.role }}</span>
+                <span class="item-subtitle">, {{ exp.company }}</span>
+            </div>
+            <div class="item-date">{{ exp.duration }}</div>
+        </div>
+        <ul>
+            {% for bullet in exp.bullets %}
+            <li>{{ bullet }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if data.projects %}
+    <h2>Selected Projects</h2>
+    {% for proj in data.projects %}
+    <div class="section">
+        <div class="item-header">
+            <span class="item-title">{{ proj.name }}</span>
+            {% if proj.link %}<span class="item-date">{{ proj.link }}</span>{% endif %}
+        </div>
+        <p style="margin-top: 5px;">{{ proj.description }}</p>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if data.education %}
+    <h2>Education</h2>
+    {% for edu in data.education %}
+    <div class="section">
+        <div class="item-header">
+            <div>
+                <span class="item-title">{{ edu.degree }}</span>
+                <span class="item-subtitle"> - {{ edu.institution }}</span>
+            </div>
+            <div class="item-date">{{ edu.duration }}</div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimal Resume</title>
+    <style>
+        @page { size: A4; margin: 25mm 20mm; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #000; line-height: 1.4; font-size: 10pt; }
+        
+        .header { border-bottom: 1px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        .name { font-size: 26pt; font-weight: normal; margin: 0; letter-spacing: -0.5px;}
+        .contact { font-size: 9pt; margin-top: 8px; }
+        .contact span { text-decoration: none; margin-right: 10px; }
+        
+        h2 { font-size: 12pt; text-transform: uppercase; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 2px; margin-top: 20px; margin-bottom: 10px; letter-spacing: 1px; }
+        
+        .skills { margin-bottom: 15px; }
+        .skills strong { font-weight: bold; }
+        
+        .item-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .role { font-weight: bold; font-size: 11pt; }
+        .company { font-style: italic; font-size: 11pt; margin-left: 5px;}
+        .date { font-size: 10pt; color: #333; }
+        
+        ul { margin: 0 0 15px 0; padding-left: 15px; }
+        li { margin-bottom: 3px; }
+        
+        .section { margin-bottom: 10px; page-break-inside: avoid; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="name">{{ data.name }}</h1>
+        <div class="contact">
+            {% if data.contact.email %}<span>{{ data.contact.email }}</span>{% endif %}
+            {% if data.contact.phone %}<span>| {{ data.contact.phone }}</span>{% endif %}
+            {% if data.contact.location %}<span>| {{ data.contact.location }}</span>{% endif %}
+            {% if data.contact.linkedin %}<span>| {{ data.contact.linkedin }}</span>{% endif %}
+        </div>
+    </div>
+
+    {% if data.skills %}
+    <h2>Skills</h2>
+    <div class="skills">
+        {{ data.skills|join:", " }}
+    </div>
+    {% endif %}
+
+    {% if data.experience %}
+    <h2>Experience</h2>
+    {% for exp in data.experience %}
+    <div class="section">
+        <div class="item-header">
+            <div>
+                <span class="role">{{ exp.role }}</span>
+                <span class="company">{{ exp.company }}</span>
+            </div>
+            <div class="date">{{ exp.duration }}</div>
+        </div>
+        <ul>
+            {% for bullet in exp.bullets %}
+            <li>{{ bullet }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if data.projects %}
+    <h2>Projects</h2>
+    {% for proj in data.projects %}
+    <div class="section">
+        <div class="item-header">
+            <span class="role">{{ proj.name }}</span>
+            {% if proj.link %}<span class="date">{{ proj.link }}</span>{% endif %}
+        </div>
+        <p style="margin-top: 3px;">{{ proj.description }}</p>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if data.education %}
+    <h2>Education</h2>
+    {% for edu in data.education %}
+    <div class="section">
+        <div class="item-header">
+            <div>
+                <span class="role">{{ edu.degree }}</span>
+                <span class="company">{{ edu.institution }}</span>
+            </div>
+            <div class="date">{{ edu.duration }}</div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+</body>
+</html>

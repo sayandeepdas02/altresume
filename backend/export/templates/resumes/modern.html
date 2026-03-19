@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Modern Resume</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @page { size: A4; margin: 20mm 15mm; }
+        body { font-family: 'Inter', sans-serif; color: #1f2937; line-height: 1.5; font-size: 11pt; }
+        .header { text-align: center; border-bottom: 2px solid #3b82f6; padding-bottom: 15px; margin-bottom: 20px; }
+        .name { font-size: 24pt; font-weight: 700; color: #111827; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .contact { color: #4b5563; font-size: 10pt; margin-top: 5px; }
+        .contact span { margin: 0 5px; }
+        
+        h2 { font-size: 14pt; color: #3b82f6; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .skills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .skill-tag { background-color: #eff6ff; color: #1d4ed8; padding: 4px 10px; border-radius: 4px; font-size: 10pt; font-weight: 500;}
+        
+        .item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+        .item-title { font-weight: 600; font-size: 12pt; color: #111827; }
+        .item-subtitle { font-style: italic; color: #4b5563; }
+        .item-date { font-size: 10pt; color: #6b7280; font-weight: 500;}
+        
+        ul { margin: 0 0 15px 0; padding-left: 20px; }
+        li { margin-bottom: 4px; text-align: justify; }
+        
+        .section { margin-bottom: 15px; page-break-inside: avoid; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="name">{{ data.name }}</h1>
+        <div class="contact">
+            {% if data.contact.email %}<span>{{ data.contact.email }}</span>{% endif %}
+            {% if data.contact.phone %}<span>• {{ data.contact.phone }}</span>{% endif %}
+            {% if data.contact.location %}<span>• {{ data.contact.location }}</span>{% endif %}
+            {% if data.contact.linkedin %}<span>• {{ data.contact.linkedin }}</span>{% endif %}
+        </div>
+    </div>
+
+    {% if data.skills %}
+    <h2>Skills</h2>
+    <div class="skills">
+        {% for skill in data.skills %}
+        <div class="skill-tag">{{ skill }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if data.experience %}
+    <h2>Experience</h2>
+    {% for exp in data.experience %}
+    <div class="section">
+        <div class="item-header">
+            <div>
+                <span class="item-title">{{ exp.role }}</span>
+                <span class="item-subtitle"> at {{ exp.company }}</span>
+            </div>
+            <div class="item-date">{{ exp.duration }}</div>
+        </div>
+        <ul>
+            {% for bullet in exp.bullets %}
+            <li>{{ bullet }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if data.projects %}
+    <h2>Projects</h2>
+    {% for proj in data.projects %}
+    <div class="section">
+        <div class="item-header">
+            <span class="item-title">{{ proj.name }}</span>
+            {% if proj.link %}<span class="item-date">{{ proj.link }}</span>{% endif %}
+        </div>
+        <p style="margin-top: 5px;">{{ proj.description }}</p>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if data.education %}
+    <h2>Education</h2>
+    {% for edu in data.education %}
+    <div class="section">
+        <div class="item-header">
+            <div>
+                <span class="item-title">{{ edu.degree }}</span>
+                <span class="item-subtitle">, {{ edu.institution }}</span>
+            </div>
+            <div class="item-date">{{ edu.duration }}</div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+</body>
+</html>
