@@ -1,12 +1,14 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { UploadCloud, CheckCircle2, Loader2, Zap, Briefcase, FileText, SplitSquareHorizontal, CheckCircle, DownloadCloud, ArrowRight, AlertCircle } from 'lucide-react';
+import { UploadCloud, CheckCircle2, Loader2, Zap, Briefcase, FileText, SplitSquareHorizontal, CheckCircle, DownloadCloud, ArrowRight, AlertCircle, Mail, FileSignature } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { BillingModal } from '@/components/ui/BillingModal';
 
 export default function DashboardPage() {
     const { user } = useAuth();
+    const router = useRouter();
     const [file, setFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [isParsing, setIsParsing] = useState(false);
@@ -21,6 +23,7 @@ export default function DashboardPage() {
     const [jobDescription, setJobDescription] = useState<string>('');
     const [optimizedData, setOptimizedData] = useState<any>(null);
     const [optimizationId, setOptimizationId] = useState<string>('');
+    const [activeTab, setActiveTab] = useState<'resume' | 'cover_letter' | 'cold_email'>('resume');
 
     // Export payload
     const [templates, setTemplates] = useState<any[]>([]);
@@ -59,6 +62,7 @@ export default function DashboardPage() {
         try {
             const uploadRes = await fetch('/api/resumes/upload', { method: 'POST', body: formData });
             const uploadData = await uploadRes.json();
+            if (uploadRes.status === 401) { router.push('/signin'); return; }
             if (!uploadRes.ok) throw new Error(uploadData.error || 'Upload failed');
             
             setResumeId(uploadData.resume_id);
@@ -70,6 +74,7 @@ export default function DashboardPage() {
                 body: JSON.stringify({ resume_id: uploadData.resume_id }),
             });
             const parseData = await parseRes.json();
+            if (parseRes.status === 401) { router.push('/signin'); return; }
             if (!parseRes.ok) throw new Error(parseData.error || 'Parsing failed');
 
             setParsedData(parseData.parsed_data);
@@ -90,39 +95,19 @@ export default function DashboardPage() {
                 body: JSON.stringify({ resume_id: resumeId, job_description: jobDescription })
             });
             const data = await res.json();
-            
+
+            if (res.status === 401) { router.push('/signin'); return; }
             if (res.status === 402) {
                 setIsBillingModalOpen(true);
                 throw new Error(data.error || 'Upgrade required to continue optimizing.');
             }
-            if (!res.ok) throw new Error(data.error || 'Failed to dispatch AI queue.');
+            if (!res.ok) throw new Error(data.error || 'Optimization failed.');
             
-            const taskId = data.task_id;
-            
-            const poll = setInterval(async () => {
-                try {
-                    const statusRes = await fetch(`/api/optimize/status?task_id=${taskId}`);
-                    const statusData = await statusRes.json();
-                    
-                    if (statusData.status === 'completed') {
-                        clearInterval(poll);
-                        setOptimizedData(statusData);
-                        setOptimizationId(statusData.optimization_id);
-                        setIsOptimizing(false);
-                    } else if (statusData.status === 'failed') {
-                        clearInterval(poll);
-                        setError(statusData.error || 'Optimization pipeline failed.');
-                        setIsOptimizing(false);
-                    }
-                } catch (e: any) {
-                    clearInterval(poll);
-                    setError('Error pinging server status.');
-                    setIsOptimizing(false);
-                }
-            }, 2500);
-
+            setOptimizedData(data);
+            setOptimizationId(data.optimization_id);
         } catch (err: any) {
             setError(err.message);
+        } finally {
             setIsOptimizing(false);
         }
     };
@@ -345,34 +330,74 @@ export default function DashboardPage() {
                                         <span className="text-xs font-medium bg-green-100 text-green-800 px-2 py-1 rounded border border-green-200">Generated</span>
                                     </div>
 
+                                    <div className="bg-gray-50 px-6 py-0 border-b border-gray-200 flex gap-6">
+                                        <button onClick={() => setActiveTab('resume')} className={`text-sm font-semibold pt-4 pb-3 border-b-2 transition-colors ${activeTab === 'resume' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-black'}`}>Optimized Resume</button>
+                                        <button onClick={() => setActiveTab('cover_letter')} className={`text-sm font-semibold pt-4 pb-3 border-b-2 transition-colors ${activeTab === 'cover_letter' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-black'}`}>Cover Letter</button>
+                                        <button onClick={() => setActiveTab('cold_email')} className={`text-sm font-semibold pt-4 pb-3 border-b-2 transition-colors ${activeTab === 'cold_email' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-black'}`}>Cold Email</button>
+                                    </div>
+
                                     <div className="p-8 overflow-y-auto space-y-8 flex-1 custom-scrollbar">
-                                        {optimizedData.changes && optimizedData.changes.length > 0 && (
-                                            <div className="bg-white border text-sm border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                                                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 text-xs font-bold text-gray-700 uppercase tracking-widest flex items-center justify-between">
-                                                    Targeted Rewrites
-                                                    <span className="bg-white border border-gray-200 text-gray-500 rounded px-2 py-0.5">{optimizedData.changes.length} Edits</span>
-                                                </div>
-                                                <div className="p-4 space-y-6">
-                                                    {optimizedData.changes.map((change: any, i: number) => (
-                                                        <div key={i} className="space-y-2 last:mb-0">
-                                                            <div className="p-3 bg-red-50 text-red-800 border-l-2 border-red-500 rounded-r-lg font-mono text-xs">
-                                                                <span className="line-through opacity-70">{change.before}</span>
-                                                            </div>
-                                                            <div className="p-3 bg-green-50 text-green-900 border-l-2 border-green-500 rounded-r-lg font-mono text-xs shadow-sm">
-                                                                {change.after}
-                                                            </div>
-                                                            <div className="text-gray-500 text-xs italic flex items-center gap-1.5 font-medium mt-2"><Zap className="h-3 w-3 text-yellow-500"/> {change.reason}</div>
+                                        {activeTab === 'resume' && (
+                                            <>
+                                                {optimizedData.changes && optimizedData.changes.length > 0 && (
+                                                    <div className="bg-white border text-sm border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                                                        <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 text-xs font-bold text-gray-700 uppercase tracking-widest flex items-center justify-between">
+                                                            Targeted Rewrites
+                                                            <span className="bg-white border border-gray-200 text-gray-500 rounded px-2 py-0.5">{optimizedData.changes.length} Edits</span>
                                                         </div>
-                                                    ))}
+                                                        <div className="p-4 space-y-6">
+                                                            {optimizedData.changes.map((change: any, i: number) => (
+                                                                <div key={i} className="space-y-2 last:mb-0">
+                                                                    <div className="p-3 bg-red-50 text-red-800 border-l-2 border-red-500 rounded-r-lg font-mono text-xs">
+                                                                        <span className="line-through opacity-70">{change.before}</span>
+                                                                    </div>
+                                                                    <div className="p-3 bg-green-50 text-green-900 border-l-2 border-green-500 rounded-r-lg font-mono text-xs shadow-sm">
+                                                                        {change.after}
+                                                                    </div>
+                                                                    <div className="text-gray-500 text-xs italic flex items-center gap-1.5 font-medium mt-2"><Zap className="h-3 w-3 text-yellow-500"/> {change.reason}</div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <h4 className="font-semibold text-gray-900 mb-3 tracking-snug">Final Document Model</h4>
+                                                    <div className="whitespace-pre-wrap text-sm text-gray-800 leading-relaxed bg-white border border-gray-200 p-6 rounded-xl shadow-inner font-serif">
+                                                        {optimizedData.optimized_resume}
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+                                        
+                                        {activeTab === 'cover_letter' && (
+                                            <div>
+                                                <h4 className="font-semibold text-gray-900 mb-3 tracking-snug flex items-center gap-2"><FileSignature className="h-4 w-4 text-gray-500"/> Contextual Cover Letter</h4>
+                                                <div className="whitespace-pre-wrap text-sm text-gray-800 leading-relaxed bg-white border border-gray-200 p-6 rounded-xl shadow-inner font-serif">
+                                                    {optimizedData.cover_letter || (
+                                                        <div className="flex flex-col items-center justify-center py-10 text-center">
+                                                            <AlertCircle className="h-8 w-8 text-yellow-500 mb-3"/>
+                                                            <p className="font-bold text-gray-900">Cover Letters are a Pro Feature</p>
+                                                            <p className="text-gray-500 text-sm mt-1">Upgrade your plan to generate tailored cover letters.</p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
-                                        <div>
-                                            <h4 className="font-semibold text-gray-900 mb-3 tracking-snug">Final Document Model</h4>
-                                            <div className="whitespace-pre-wrap text-sm text-gray-800 leading-relaxed bg-white border border-gray-200 p-6 rounded-xl shadow-inner font-serif">
-                                                {optimizedData.optimized_resume}
+
+                                        {activeTab === 'cold_email' && (
+                                            <div>
+                                                <h4 className="font-semibold text-gray-900 mb-3 tracking-snug flex items-center gap-2"><Mail className="h-4 w-4 text-gray-500"/> Direct Cold Email</h4>
+                                                <div className="whitespace-pre-wrap text-sm text-gray-800 leading-relaxed bg-white border border-gray-200 p-6 rounded-xl shadow-inner font-serif">
+                                                    {optimizedData.cold_email || (
+                                                        <div className="flex flex-col items-center justify-center py-10 text-center">
+                                                            <AlertCircle className="h-8 w-8 text-yellow-500 mb-3"/>
+                                                            <p className="font-bold text-gray-900">Cold Emails are a Premium Feature</p>
+                                                            <p className="text-gray-500 text-sm mt-1">Upgrade your plan to automatically draft recruiter outreach emails.</p>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

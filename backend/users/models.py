@@ -30,9 +30,9 @@ class User(AbstractBaseUser):
     # Pricing & Limits
     TIER_CHOICES = [
         ('free', 'Free'),
-        ('pro', 'Pro'),
-        ('premium', 'Premium'),
-        ('elite', 'Elite')
+        ('basic', 'Basic'),     # $9
+        ('pro', 'Pro'),         # $29
+        ('premium', 'Premium')  # $49
     ]
     pricing_tier = models.CharField(max_length=20, choices=TIER_CHOICES, default='free')
     tokens_remaining = models.IntegerField(default=10)
@@ -55,6 +55,14 @@ class User(AbstractBaseUser):
     def pk(self):
         """Alias for _id so that Django ORM and SimpleJWT can access user.pk"""
         return self._id
+
+    @property
+    def can_generate_cover_letter(self):
+        return self.pricing_tier in ['free', 'pro', 'premium']
+
+    @property
+    def can_generate_cold_email(self):
+        return self.pricing_tier in ['free', 'premium']
 
     def __str__(self):
         return self.email

@@ -9,6 +9,24 @@ export function middleware(request: NextRequest) {
         if (!token) {
             return NextResponse.redirect(new URL('/signin', request.url));
         }
+
+        try {
+            // Check if JWT is expired
+            const payloadBase64 = token.value.split('.')[1];
+            if (payloadBase64) {
+                const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+                const payload = JSON.parse(payloadJson);
+                if (payload.exp && payload.exp * 1000 < Date.now()) {
+                    const response = NextResponse.redirect(new URL('/signin', request.url));
+                    response.cookies.delete('access_token');
+                    return response;
+                }
+            }
+        } catch (error) {
+            const response = NextResponse.redirect(new URL('/signin', request.url));
+            response.cookies.delete('access_token');
+            return response;
+        }
     }
 
     // Redirect authenticated users away from Auth portal

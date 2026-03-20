@@ -7,6 +7,7 @@ from rest_framework import status
 from django.conf import settings
 from .models import Resume
 from .services.parser import parse_resume
+from bson import ObjectId
 
 class UploadResumeView(APIView):
     permission_classes = [IsAuthenticated]
@@ -48,7 +49,7 @@ class ParseResumeView(APIView):
             return Response({"error": "resume_id is required"}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            resume = Resume.objects.get(pk=resume_id, user=request.user)
+            resume = Resume.objects.get(pk=ObjectId(resume_id))
         except Resume.DoesNotExist:
             return Response({"error": "Resume not found"}, status=status.HTTP_404_NOT_FOUND)
         

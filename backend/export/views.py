@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from optimization.models import OptimizationHistory
 from .services.exporter import render_resume_pdf
+from bson import ObjectId
 
 class TemplatesListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -29,7 +30,7 @@ class ExportPDFView(APIView):
             return Response({"error": "optimization_id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            history = OptimizationHistory.objects.get(pk=optimization_id, user=request.user)
+            history = OptimizationHistory.objects.get(pk=ObjectId(optimization_id), user=request.user)
         except OptimizationHistory.DoesNotExist:
             return Response({"error": "Optimization record not found"}, status=status.HTTP_404_NOT_FOUND)
 

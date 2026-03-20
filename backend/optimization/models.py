@@ -8,6 +8,8 @@ class OptimizationHistory(models.Model):
     resume = models.ForeignKey(Resume, on_delete=models.CASCADE)
     job_description = models.TextField()
     optimized_resume = models.TextField()
+    cover_letter = models.TextField(blank=True, null=True)
+    cold_email = models.TextField(blank=True, null=True)
     score = models.IntegerField()
     changes = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)

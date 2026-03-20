@@ -52,17 +52,18 @@ export function BillingModal({ isOpen, onClose }: BillingModalProps) {
           </p>
 
           <div className="space-y-4 mb-8">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-black shrink-0 mt-0.5" />
-              <p className="text-sm text-gray-600"><strong>Unlimited Saves</strong> – Keep all your tailored resumes securely stored.</p>
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-100"><span className="font-bold text-gray-900">$9</span></div>
+              <p className="text-sm text-gray-600"><strong>Basic</strong> – 100 Resumes optimizations.</p>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-black shrink-0 mt-0.5" />
-              <p className="text-sm text-gray-600"><strong>Premium Templates</strong> – Access professional PDF exports designed for top tech companies.</p>
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-100"><span className="font-bold text-gray-900">$29</span></div>
+              <p className="text-sm text-gray-600"><strong>Pro</strong> – 300 Resumes + Cover Letters.</p>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-black shrink-0 mt-0.5" />
-              <p className="text-sm text-gray-600"><strong>Priority Processing</strong> – Skip the queue during high traffic.</p>
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-black text-white text-[10px] uppercase font-bold px-2 py-1 rounded-bl-lg tracking-wider">Most Popular</div>
+              <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-100"><span className="font-bold text-gray-900">$49</span></div>
+              <p className="text-sm text-gray-600"><strong>Premium</strong> – 1000 Resumes + Cold Emails.</p>
             </div>
           </div>
 
