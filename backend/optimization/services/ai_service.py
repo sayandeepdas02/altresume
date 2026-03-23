@@ -5,11 +5,13 @@ Delegates to:
   prompt_builder  → prompt construction
   json_parser     → safe JSON extraction, repair, retry
 
-Public API (backwards-compatible):
-  analyze_jd, match_resume, rewrite_resume
-
-Extended API:
-  structure_resume, generate_cover_letter, generate_cold_email, generate_file_name
+Public API:
+  analyze_jd          → parse JD into structured JSON
+  structure_resume    → parse resume text into structured JSON
+  score_resume        → LLM-driven ATS scoring with rationale
+  match_resume        → fast Python keyword overlap (backwards-compat)
+  rewrite_resume      → full optimization with missing-skills feedback
+  generate_cover_letter, generate_cold_email, generate_file_name
 """
 
 import os
@@ -20,7 +22,7 @@ from huggingface_hub import InferenceClient
 from .prompt_builder import (
     jd_analyzer_prompt,
     resume_structurer_prompt,
-    match_analyzer_prompt,
+    match_scorer_prompt,
     resume_optimizer_prompt,
     cover_letter_prompt,
     cold_email_prompt,
@@ -45,7 +47,7 @@ def _get_client() -> InferenceClient:
 # ---------------------------------------------------------------------------
 
 def _generate(prompt: str, max_tokens: int = 1500, temperature: float = 0.2) -> str:
-    """Call Mistral via HuggingFace chat_completion API."""
+    """Call LLM via HuggingFace chat_completion API."""
     client = _get_client()
     response = client.chat_completion(
         messages=[{"role": "user", "content": prompt}],
@@ -65,7 +67,6 @@ def analyze_jd(text: str) -> dict:
 
     result = call_with_retry(lambda: _generate(prompt, max_tokens=800, temperature=0.1))
 
-    # Ensure all expected keys
     defaults = {
         "role": "",
         "required_skills": [],
@@ -73,6 +74,8 @@ def analyze_jd(text: str) -> dict:
         "tools": [],
         "responsibilities": [],
         "keywords": [],
+        "experience_years": None,
+        "domains": [],
     }
     for key, default in defaults.items():
         result.setdefault(key, default)
@@ -88,34 +91,87 @@ def structure_resume(raw_text: str) -> dict:
     """Convert raw resume text into structured JSON."""
     prompt = resume_structurer_prompt(raw_text)
 
-    result = call_with_retry(lambda: _generate(prompt, max_tokens=1500, temperature=0.1))
+    result = call_with_retry(lambda: _generate(prompt, max_tokens=2000, temperature=0.1))
 
     defaults = {
         "name": "",
         "email": "",
         "phone": "",
+        "linkedin": "",
+        "github": "",
         "summary": "",
-        "skills": [],
+        "skills": {"hard_skills": [], "soft_skills": []},
         "experience": [],
         "education": [],
         "projects": [],
+        "certifications": [],
     }
     for key, default in defaults.items():
         result.setdefault(key, default)
+
+    # Backwards compat: if skills is a flat list, convert to dict
+    if isinstance(result.get("skills"), list):
+        result["skills"] = {
+            "hard_skills": result["skills"],
+            "soft_skills": [],
+        }
 
     return result
 
 
 # ---------------------------------------------------------------------------
-# 3. Match Resume (pure Python — no AI calls, fast)
+# 3a. Score Resume (LLM-Driven — rich analysis with rationale)
+# ---------------------------------------------------------------------------
+
+def score_resume(resume_data: dict, jd_data: dict) -> dict:
+    """
+    LLM-driven ATS scoring with detailed skill analysis.
+    Returns: match_score, matching_skills, missing_skills, rationale, recommendation.
+    """
+    resume_json = json.dumps(resume_data, indent=2)[:5000]
+    jd_json = json.dumps(jd_data, indent=2)[:5000]
+    prompt = match_scorer_prompt(resume_json, jd_json)
+
+    result = call_with_retry(lambda: _generate(prompt, max_tokens=1200, temperature=0.1))
+
+    defaults = {
+        "match_score": 50,
+        "matched_keywords": [],
+        "missing_keywords": [],
+        "matching_skills": [],
+        "missing_skills": [],
+        "strengths": [],
+        "gaps": [],
+        "recommendation": "",
+        "rationale": "",
+    }
+    for key, default in defaults.items():
+        result.setdefault(key, default)
+
+    # Clamp score
+    result["match_score"] = max(0, min(100, int(result["match_score"])))
+
+    return result
+
+
+# ---------------------------------------------------------------------------
+# 3b. Match Resume (pure Python — no AI calls, fast, backwards-compat)
 # ---------------------------------------------------------------------------
 
 def match_resume(resume_data: dict, jd_data: dict) -> dict:
     """
-    Compute ATS match score between resume and JD using keyword overlap.
+    Compute ATS match score using keyword overlap.
     Pure Python — no network calls, instant.
     """
-    resume_skills = [s.lower() for s in resume_data.get("skills", [])]
+    # Handle both flat list and dict skills
+    skills = resume_data.get("skills", [])
+    if isinstance(skills, dict):
+        resume_skills = [
+            s.lower() for s in
+            skills.get("hard_skills", []) + skills.get("soft_skills", [])
+        ]
+    else:
+        resume_skills = [s.lower() for s in skills]
 
     jd_skills = (
         jd_data.get("required_skills", [])
@@ -145,25 +201,29 @@ def match_resume(resume_data: dict, jd_data: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# 4. Resume Optimizer / Rewriter (CORE)
+# 4. Resume Optimizer / Rewriter (CORE — with missing-skills feedback)
 # ---------------------------------------------------------------------------
 
 def rewrite_resume(
     resume_data: dict,
     jd_text: str,
+    missing_skills: list = None,
     generate_cover_letter: bool = False,
     generate_cold_email: bool = False,
 ) -> dict:
     """
-    Rewrite a resume to align with a JD.  Optionally generates cover letter
-    and cold email in parallel within the same response pipeline.
+    Rewrite a resume to align with a JD.
 
+    If missing_skills is provided (from score_resume), they are injected
+    into the prompt so the optimizer addresses specific gaps.
+
+    Optionally generates cover letter and cold email.
     Returns dict with: optimized_resume, changes, cover_letter?, cold_email?
     """
     resume_json = json.dumps(resume_data, indent=2)[:6000]
-    prompt = resume_optimizer_prompt(resume_json, jd_text)
+    prompt = resume_optimizer_prompt(resume_json, jd_text, missing_skills=missing_skills)
 
-    result = call_with_retry(lambda: _generate(prompt, max_tokens=2000, temperature=0.3))
+    result = call_with_retry(lambda: _generate(prompt, max_tokens=2500, temperature=0.3))
 
     result.setdefault("optimized_resume", "")
     result.setdefault("changes", [])

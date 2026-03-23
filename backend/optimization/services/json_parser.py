@@ -1,7 +1,7 @@
 """
 json_parser.py — JSON safety layer for LLM outputs.
 
-Mistral does NOT guarantee valid JSON.  This module provides:
+LLMs do NOT guarantee valid JSON.  This module provides:
   1. Multi-strategy JSON extraction
   2. LLM-based JSON repair (sends broken text back to the model)
   3. Retry-aware wrapper for any generation function
@@ -26,7 +26,42 @@ def _get_repair_client() -> InferenceClient:
 
 
 # ---------------------------------------------------------------------------
-# Core extraction — try 3 strategies before giving up
+# Sanitization — fix common LLM JSON quirks before parsing
+# ---------------------------------------------------------------------------
+
+def _sanitize_json_text(text: str) -> str:
+    """
+    Fix common LLM quirks that break json.loads():
+      - Literal newlines inside string values (should be \\n)
+      - Trailing commas before } or ]
+    """
+    # Replace literal newlines inside JSON strings with escaped \\n
+    # This handles the case where the model outputs:
+    #   {"key": "line1\nline2"}  (invalid - literal newline)
+    # We want:
+    #   {"key": "line1\\nline2"} (valid - escaped)
+    
+    # Simple approach: try to replace newlines that appear between quotes
+    # by working line-by-line is complex. Instead, just replace all
+    # newlines that are NOT structural (i.e., not between } and {)
+    lines = text.split('\n')
+    if len(lines) > 1:
+        # Try joining with escaped newlines to see if that parses
+        joined = ' '.join(line.strip() for line in lines)
+        try:
+            json.loads(joined)
+            return joined
+        except json.JSONDecodeError:
+            pass
+    
+    # Remove trailing commas: ,} or ,]
+    text = re.sub(r',\s*([\]}])', r'\1', text)
+    
+    return text
+
+
+# ---------------------------------------------------------------------------
+# Core extraction — try multiple strategies before giving up
 # ---------------------------------------------------------------------------
 
 def extract_json(text: str) -> dict:
@@ -35,40 +70,66 @@ def extract_json(text: str) -> dict:
 
     Strategy order:
       1. Direct parse (cheapest)
-      2. Markdown fence extraction (```json ... ```)
-      3. Greedy brace matching (outermost { ... })
+      2. Direct parse after sanitization
+      3. Markdown fence extraction (```json ... ```)
+      4. Greedy brace matching
+      5. Greedy brace matching after sanitization
     """
     if not text or not text.strip():
         raise ValueError("Empty response from model")
 
+    cleaned = text.strip()
+
     # Strategy 1 — direct parse
     try:
-        return json.loads(text.strip())
+        return json.loads(cleaned)
     except json.JSONDecodeError:
         pass
 
-    # Strategy 2 — markdown fence
-    fence = re.search(r"```(?:json)?\s*(\{[\s\S]*?\})\s*```", text)
+    # Strategy 2 — direct parse after sanitization
+    try:
+        sanitized = _sanitize_json_text(cleaned)
+        return json.loads(sanitized)
+    except json.JSONDecodeError:
+        pass
+
+    # Strategy 3 — markdown fence (greedy match for the JSON block)
+    fence = re.search(r"```(?:json)?\s*(\{[\s\S]*\})\s*```", cleaned)
     if fence:
         try:
             return json.loads(fence.group(1))
         except json.JSONDecodeError:
-            pass
+            # Try sanitized version of fence content
+            try:
+                return json.loads(_sanitize_json_text(fence.group(1)))
+            except json.JSONDecodeError:
+                pass
 
-    # Strategy 3 — greedy brace match
-    start = text.find("{")
+    # Strategy 4 — greedy brace match
+    start = cleaned.find("{")
     if start != -1:
+        # Find the LAST matching brace
         depth = 0
-        for i in range(start, len(text)):
-            if text[i] == "{":
+        end_pos = -1
+        for i in range(start, len(cleaned)):
+            if cleaned[i] == "{":
                 depth += 1
-            elif text[i] == "}":
+            elif cleaned[i] == "}":
                 depth -= 1
             if depth == 0:
+                end_pos = i
+                break
+
+        if end_pos != -1:
+            candidate = cleaned[start:end_pos + 1]
+            try:
+                return json.loads(candidate)
+            except json.JSONDecodeError:
+                # Strategy 5 — sanitize the brace-matched block
                 try:
-                    return json.loads(text[start : i + 1])
+                    return json.loads(_sanitize_json_text(candidate))
                 except json.JSONDecodeError:
-                    break
+                    pass
 
     raise ValueError(f"Could not extract JSON from model output (length={len(text)})")
 
@@ -79,7 +140,7 @@ def extract_json(text: str) -> dict:
 
 def repair_json(broken_text: str) -> dict:
     """
-    Send broken JSON back to Mistral with a repair prompt.
+    Send broken JSON back to model with a repair prompt.
     Returns the repaired dict or raises ValueError.
     """
     client = _get_repair_client()
