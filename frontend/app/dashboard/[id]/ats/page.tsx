@@ -27,6 +27,7 @@ export default function ATSDashboard() {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [scoreData, setScoreData] = useState<ScoreResult | null>(null);
   const [optData, setOptData] = useState<OptimizationResult | null>(null);
+  const [finalResume, setFinalResume] = useState<any>(null);
 
   // Preview Modal
   const [showPreview, setShowPreview] = useState(false);
@@ -64,6 +65,14 @@ export default function ATSDashboard() {
     try {
       const result = await optimizeResume(resumeId, jobDescription);
       setOptData(result);
+      
+      // Enforce Single Source of Truth in state
+      const unifiedResume = result.final_resume || resume?.parsed_data;
+      setFinalResume(unifiedResume);
+      console.log("parsed_resume", resume?.parsed_data);
+      console.log("ai_output", result.ai_modifications);
+      console.log("final_resume", unifiedResume);
+      
     } catch (err: any) {
       if (err.message.includes('402')) {
         setError('Pro tier required for optimization.'); // Ideally trigger billing modal
@@ -334,11 +343,9 @@ export default function ATSDashboard() {
         </div>
       </div>
 
-      {showPreview && optData && (
+      {showPreview && finalResume && (
         <ResumePreview
-          parsedData={(resume?.parsed_data as any) || {}} 
-          optimizedResume={optData.optimized_resume}
-          finalResume={optData.final_resume as any}
+          finalResume={finalResume}
           onClose={() => setShowPreview(false)}
         />
       )}

@@ -29,7 +29,7 @@ AltResume is a production-grade AI-powered SaaS application designed to help job
 - **Framework**: [Django](https://www.djangoproject.com/) & [Django REST Framework](https://www.django-rest-framework.org/) (DRF)
 - **Database**: [MongoDB](https://www.mongodb.com/) (accessed via Djongo)
 - **Asynchronous Task Queue**: [Celery](https://docs.celeryq.dev/) backed by [Redis](https://redis.io/)
-- **AI Integration**: [OpenAI API](https://openai.com/) (GPT-4o-mini structured JSON outputs)
+- **AI Integration**: Dual Provider System integrating [OpenAI API](https://openai.com/) (GPT-4o-mini structured JSON outputs) and Hugging Face Inference (`Qwen/Qwen2.5-7B-Instruct`) for resilient JSON schema repair.
 - **PDF Generation**: WeasyPrint / HTML-to-PDF
 
 ---
@@ -132,6 +132,16 @@ The system is decoupled into two primary domains:
 - **Strict Output Formatting**: AI optimizations are constrained by rigid JSON schemas (`gpt-4o-mini` with `json_schema` type) to eliminate hallucinated responsibilities.
 - **Decoupled Architecture**: Failed Celery operations intelligently refund the user's credits and bubble explicit errors back to the frontend dashboard.
 - **Fail-Fast Validations**: The server terminates oversized files (`> 5MB`), scanned unreadable PDFs, and excessive Job Descriptions before hitting computational limits.
+
+---
+
+## 🛑 Current Known Issues & Ongoing Fixes
+
+Please reference `projectupdate.md` for a comprehensive system audit. The following critical issues are currently being addressed:
+
+- **Missing `requirements.txt`**: The backend dependency file is currently missing from the repository, requiring manual environment setup.
+- **Configuration Drift**: The AI repair infrastructure relies on `HUGGINGFACE_API_KEY` which is undocumented in `.env` setup instructions.
+- **Silent Failures**: Certain Celery fallback tasks handle errors silently. Detailed logging is being introduced.
 
 ---
 

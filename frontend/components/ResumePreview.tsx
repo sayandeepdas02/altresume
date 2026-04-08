@@ -38,9 +38,7 @@ interface ResumeData {
 }
 
 interface ResumePreviewProps {
-    parsedData?: ResumeData;
-    optimizedResume?: any;
-    finalResume?: ResumeData;
+    finalResume: ResumeData;
     onClose: () => void;
 }
 
@@ -69,90 +67,6 @@ function Editable({ value, className, tag, multiline }: {
             dangerouslySetInnerHTML={{ __html: value }}
         />
     );
-}
-
-// ─── Parse optimized resume text into structured data ───────────────────────
-
-function parseOptimizedResume(optimized: any, fallback: ResumeData): ResumeData {
-    // If the backend returned a structured JSON object (new behavior)
-    if (typeof optimized === 'object' && optimized !== null) {
-        let skills: string[] = [];
-        if (optimized.skills) {
-            skills = [
-                ...(optimized.skills.hard_skills || []),
-                ...(optimized.skills.soft_skills || [])
-            ];
-        } else {
-            skills = fallback.skills || [];
-        }
-
-        return {
-            name: optimized.name || fallback.name || '',
-            email: optimized.email || fallback.email || '',
-            phone: optimized.phone || fallback.phone || '',
-            summary: optimized.summary || fallback.summary || '',
-            skills: skills,
-            experience: optimized.experience || fallback.experience || [],
-            education: optimized.education || fallback.education || [],
-            projects: optimized.projects || fallback.projects || [],
-        };
-    }
-
-    // Fallback: If it's a raw string (legacy behavior)
-    if (typeof optimized !== 'string') return fallback;
-    
-    const text = optimized;
-    const lines = text.split('\n').filter(l => l.trim());
-
-    let name = fallback.name || '';
-    let skills: string[] = [...(fallback.skills || [])];
-    const experience: Experience[] = [];
-    const education: Education[] = [];
-    const projects: Project[] = [];
-
-    // Try to find name (first non-empty line that looks like a name)
-    if (lines.length > 0 && !lines[0].includes(':') && lines[0].length < 60) {
-        name = lines[0].replace(/\*\*/g, '').trim();
-    }
-
-    // Try to extract skills line
-    for (const line of lines) {
-        if (line.toLowerCase().startsWith('skills:') || line.toLowerCase().startsWith('**skills')) {
-            const skillText = line.replace(/\*\*/g, '').replace(/^skills:\s*/i, '').trim();
-            const parsed = skillText.split(/[,;]/).map(s => s.trim()).filter(Boolean);
-            if (parsed.length > 0) skills = parsed;
-        }
-    }
-
-    // Use fallback structured data for experience/education/projects
-    // since the AI text format varies too much for reliable parsing
-    if (fallback.experience?.length) {
-        fallback.experience.forEach(exp => {
-            experience.push({
-                ...exp,
-                bullets: exp.bullets || (exp.description ? exp.description.split('\n').filter(Boolean) : []),
-            });
-        });
-    }
-
-    if (fallback.education?.length) {
-        education.push(...fallback.education);
-    }
-
-    if (fallback.projects?.length) {
-        projects.push(...fallback.projects);
-    }
-
-    return {
-        name,
-        email: fallback.email || '',
-        phone: fallback.phone || '',
-        summary: fallback.summary || '',
-        skills,
-        experience,
-        education,
-        projects,
-    };
 }
 
 // ─── Template: Modern Blue ──────────────────────────────────────────────────
@@ -424,36 +338,29 @@ function ProfessionalTemplate({ data }: { data: ResumeData }) {
 
 // ─── Main Preview Component ─────────────────────────────────────────────────
 
-export default function ResumePreview({ parsedData, optimizedResume, finalResume, onClose }: ResumePreviewProps) {
+export default function ResumePreview({ finalResume, onClose }: ResumePreviewProps) {
     const [template, setTemplate] = useState<'modern' | 'minimal' | 'professional'>('modern');
     const [isEditing, setIsEditing] = useState(false); // Kept as isEditing based on usage in JSX
     const printRef = useRef<HTMLDivElement>(null);
 
-    // The final resume data is determined primarily by the backend's deep merge.
-    const fallbackParsed = parsedData || ({} as ResumeData);
+    // The final resume data is determined entirely by the backend's deep merge.
     let resumeData: ResumeData;
-    if (finalResume) {
-        let normalizedSkills: string[] = [];
-        if (Array.isArray(finalResume.skills)) {
-            normalizedSkills = finalResume.skills;
-        } else if (finalResume.skills && typeof finalResume.skills === 'object') {
-            const h = (finalResume.skills as any).hard_skills || [];
-            const s = (finalResume.skills as any).soft_skills || [];
-            normalizedSkills = [...h, ...s];
-        }
-
-        resumeData = {
-            ...finalResume,
-            skills: normalizedSkills,
-            experience: finalResume.experience || [],
-            education: finalResume.education || [],
-            projects: finalResume.projects || []
-        };
-    } else if (optimizedResume) {
-        resumeData = parseOptimizedResume(optimizedResume, fallbackParsed);
-    } else {
-        resumeData = fallbackParsed;
+    let normalizedSkills: string[] = [];
+    if (Array.isArray(finalResume?.skills)) {
+        normalizedSkills = finalResume.skills;
+    } else if (finalResume?.skills && typeof finalResume.skills === 'object') {
+        const h = (finalResume.skills as any).hard_skills || [];
+        const s = (finalResume.skills as any).soft_skills || [];
+        normalizedSkills = [...h, ...s];
     }
+
+    resumeData = {
+        ...finalResume,
+        skills: normalizedSkills,
+        experience: finalResume?.experience || [],
+        education: finalResume?.education || [],
+        projects: finalResume?.projects || []
+    };
 
     const handlePrint = useCallback(() => {
         // Create a new window for printing to avoid dashboard chrome
