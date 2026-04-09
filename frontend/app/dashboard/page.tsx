@@ -8,7 +8,7 @@ import { BillingModal } from '@/components/ui/BillingModal';
 import ResumePreview from '@/components/ResumePreview';
 import { getResumes, ResumeSummary, deleteResume, duplicateResume } from '@/services/resumeApi';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/resizable-navbar-demo';
 
 export default function DashboardPage() {
   const { user } = useAuth();

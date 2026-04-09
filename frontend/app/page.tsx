@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowRight, FileText, Check, LayoutGrid, Zap } from 'lucide-react';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/resizable-navbar-demo';
 
 export default function LandingPage() {
   return (

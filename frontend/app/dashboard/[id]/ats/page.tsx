@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { getResume, scoreResume, optimizeResume, ResumeDetail, ScoreResult, OptimizationResult } from '@/services/resumeApi';
 import { ArrowLeft, Loader2, Zap, AlertCircle, CheckCircle, FileText, ArrowRight, TrendingUp } from 'lucide-react';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/resizable-navbar-demo';
 import Link from 'next/link';
 import ResumePreview from '@/components/ResumePreview';
 
