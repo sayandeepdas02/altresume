@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${inter.variable} ${firaCode.variable} min-h-screen flex flex-col bg-white text-gray-900 font-sans antialiased selection:bg-black selection:text-white`}>
+      <body suppressHydrationWarning className={`${inter.variable} ${firaCode.variable} min-h-screen flex flex-col bg-white text-gray-900 font-sans antialiased selection:bg-black selection:text-white`}>
         <AuthProvider>
           <div className="flex-1 flex flex-col">{children}</div>
         </AuthProvider>

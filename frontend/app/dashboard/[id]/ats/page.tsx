@@ -107,6 +107,9 @@ export default function ATSDashboard() {
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <Navbar />
       
+      {/* Spacer for fixed navbar */}
+      <div className="h-16" />
+
       {/* Top Banner */}
       <div className="bg-white border-b border-gray-200 sticky top-16 z-40">
         <div className="max-w-[1200px] mx-auto px-6 h-14 flex items-center justify-between">
@@ -132,7 +135,7 @@ export default function ATSDashboard() {
       <div className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-8 flex items-start gap-8 flex-col lg:flex-row pb-32">
         
         {/* Left Column: Job Description Input */}
-        <div className="w-full lg:w-1/3 flex flex-col gap-6 sticky top-36">
+        <div className="w-full lg:w-1/3 flex flex-col gap-6 sticky top-[8.5rem]">
           <div className="card-base pt-5">
             <h2 className="text-sm font-bold tracking-tight text-[#0a0a0a] uppercase mb-4 flex items-center justify-between">
               Target Role

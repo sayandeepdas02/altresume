@@ -3,83 +3,99 @@
 import Link from 'next/link';
 import { ArrowRight, FileText, Check, LayoutGrid, Zap } from 'lucide-react';
 import Navbar from '@/components/resizable-navbar-demo';
+import { AuroraBackground } from '@/components/ui/aurora-background';
+import { motion } from 'motion/react';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
 
+      {/* Spacer for fixed navbar */}
+      <div className="h-16" />
+
       <main className="flex flex-col items-center">
         
-        {/* HERO SECTION */}
-        <section className="w-full max-w-[1200px] px-6 lg:px-8 pt-32 pb-24 border-b border-gray-200 flex flex-col items-center text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-gray-50 border border-gray-200 rounded-none text-xs font-medium text-gray-500 mb-8">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full bg-gray-900 opacity-20"></span>
-              <span className="relative inline-flex h-2 w-2 bg-gray-900"></span>
-            </span>
-            AltResume 2.0 is now live
-          </div>
-          
-          <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-[#0a0a0a] max-w-4xl mb-6">
-            Tailor your resume for every job in seconds
-          </h1>
-          
-          <p className="text-lg text-gray-500 max-w-2xl mb-10 leading-relaxed">
-            AI-powered resume optimization that improves your ATS score instantly. Clean, functional, and built for modern professionals.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Link href="/signin" className="btn-primary h-12 px-8 text-[15px] flex items-center gap-2 group">
-              Get Started <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link href="#demo" className="btn-secondary h-12 px-8 text-[15px]">
-              See Demo
-            </Link>
-          </div>
-          
-          <div className="mt-16 w-full max-w-4xl aspect-[16/9] bg-gray-50 border border-gray-200 rounded-none shadow-sm overflow-hidden flex items-center justify-center">
-            {/* Minimal App Preview Placeholder */}
-            <div className="w-full h-full flex flex-col">
-               <div className="h-12 border-b border-gray-200 flex items-center px-4 gap-2 bg-white">
-                 <div className="w-3 h-3 bg-gray-200 rounded-none"></div>
-                 <div className="w-3 h-3 bg-gray-200 rounded-none"></div>
-                 <div className="w-3 h-3 bg-gray-200 rounded-none"></div>
-               </div>
-               <div className="flex-1 flex">
-                 <div className="w-64 border-r border-gray-200 bg-white p-4 hidden md:block">
-                   <div className="h-4 w-24 bg-gray-200 mb-6 rounded-none"></div>
-                   <div className="space-y-3">
-                     {[1,2,3,4,5].map(i => <div key={i} className="h-3 w-full bg-gray-100 rounded-none"></div>)}
+        {/* HERO SECTION with Aurora Background */}
+        <AuroraBackground className="w-full min-h-[calc(100vh-4rem)] py-24 border-b border-gray-200">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{
+              delay: 0.3,
+              duration: 0.8,
+              ease: "easeInOut",
+            }}
+            className="relative z-10 w-full max-w-[1200px] mx-auto px-6 lg:px-8 flex flex-col items-center text-center"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/70 backdrop-blur-sm border border-gray-200 rounded-none text-xs font-medium text-gray-500 mb-8">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full bg-gray-900 opacity-20"></span>
+                <span className="relative inline-flex h-2 w-2 bg-gray-900"></span>
+              </span>
+              AltResume 2.0 is now live
+            </div>
+            
+            <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-[#0a0a0a] max-w-4xl mb-6">
+              Tailor your resume for every job in seconds
+            </h1>
+            
+            <p className="text-lg text-gray-500 max-w-2xl mb-10 leading-relaxed">
+              AI-powered resume optimization that improves your ATS score instantly. Clean, functional, and built for modern professionals.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <Link href="/signin" className="btn-primary h-12 px-8 text-[15px] flex items-center gap-2 group">
+                Get Started <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link href="#demo" className="btn-secondary h-12 px-8 text-[15px]">
+                See Demo
+              </Link>
+            </div>
+            
+            <div className="mt-16 w-full max-w-4xl aspect-[16/9] bg-white/80 backdrop-blur-sm border border-gray-200 rounded-none shadow-sm overflow-hidden flex items-center justify-center">
+              {/* Minimal App Preview Placeholder */}
+              <div className="w-full h-full flex flex-col">
+                 <div className="h-12 border-b border-gray-200 flex items-center px-4 gap-2 bg-white">
+                   <div className="w-3 h-3 bg-gray-200 rounded-none"></div>
+                   <div className="w-3 h-3 bg-gray-200 rounded-none"></div>
+                   <div className="w-3 h-3 bg-gray-200 rounded-none"></div>
+                 </div>
+                 <div className="flex-1 flex">
+                   <div className="w-64 border-r border-gray-200 bg-white p-4 hidden md:block">
+                     <div className="h-4 w-24 bg-gray-200 mb-6 rounded-none"></div>
+                     <div className="space-y-3">
+                       {[1,2,3,4,5].map(i => <div key={i} className="h-3 w-full bg-gray-100 rounded-none"></div>)}
+                     </div>
+                   </div>
+                   <div className="flex-1 p-8 flex justify-center bg-gray-50/50">
+                      <div className="w-full max-w-md bg-white border border-gray-200 shadow-sm p-8 space-y-4">
+                         <div className="h-6 w-1/3 bg-gray-900 mb-6"></div>
+                         <div className="h-2 w-full bg-gray-200"></div>
+                         <div className="h-2 w-5/6 bg-gray-200 mb-8"></div>
+                         
+                         <div className="h-4 w-1/4 bg-gray-400 mb-4"></div>
+                         <div className="h-2 w-full bg-gray-100"></div>
+                         <div className="h-2 w-full bg-gray-100"></div>
+                         <div className="h-2 w-4/5 bg-gray-100 mb-4"></div>
+                      </div>
                    </div>
                  </div>
-                 <div className="flex-1 p-8 flex justify-center bg-gray-50">
-                    <div className="w-full max-w-md bg-white border border-gray-200 shadow-sm p-8 space-y-4">
-                       <div className="h-6 w-1/3 bg-gray-900 mb-6"></div>
-                       <div className="h-2 w-full bg-gray-200"></div>
-                       <div className="h-2 w-5/6 bg-gray-200 mb-8"></div>
-                       
-                       <div className="h-4 w-1/4 bg-gray-400 mb-4"></div>
-                       <div className="h-2 w-full bg-gray-100"></div>
-                       <div className="h-2 w-full bg-gray-100"></div>
-                       <div className="h-2 w-4/5 bg-gray-100 mb-4"></div>
-                    </div>
-                 </div>
-               </div>
+              </div>
             </div>
-          </div>
-          
-          {/* Social Proof */}
-          <div className="mt-16 flex flex-col items-center">
-            <p className="text-sm text-gray-500 font-medium mb-6">Used by candidates landing offers at</p>
-            <div className="flex items-center gap-8 md:gap-12 grayscale opacity-40">
-              <span className="text-xl font-bold tracking-tighter">LINEAR</span>
-              <span className="text-xl font-bold">stripe</span>
-              <span className="text-xl font-bold tracking-tight">Vercel</span>
-              <span className="text-xl font-bold tracking-tighter">Notion</span>
+            
+            {/* Social Proof */}
+            <div className="mt-16 flex flex-col items-center">
+              <p className="text-sm text-gray-500 font-medium mb-6">Used by candidates landing offers at</p>
+              <div className="flex items-center gap-8 md:gap-12 grayscale opacity-40">
+                <span className="text-xl font-bold tracking-tighter">LINEAR</span>
+                <span className="text-xl font-bold">stripe</span>
+                <span className="text-xl font-bold tracking-tight">Vercel</span>
+                <span className="text-xl font-bold tracking-tighter">Notion</span>
+              </div>
             </div>
-          </div>
-        </section>
+          </motion.div>
+        </AuroraBackground>
 
         {/* FEATURES SECTION */}
         <section id="features" className="w-full pt-24 pb-32 border-b border-gray-200 bg-gray-50/30">
