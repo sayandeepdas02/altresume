@@ -8,7 +8,7 @@ import { BillingModal } from '@/components/ui/BillingModal';
 import ResumePreview from '@/components/ResumePreview';
 import { getResumes, ResumeSummary, deleteResume, duplicateResume } from '@/services/resumeApi';
 import Link from 'next/link';
-import Navbar from '@/components/resizable-navbar-demo';
+import Navbar from '@/components/Navbar';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -109,13 +109,13 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f4efe9] flex flex-col font-sans">
       <Navbar />
       <div className="pt-16">
       <div className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-12">
         <header className="flex items-end justify-between mb-8 pb-6 border-b border-gray-200">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-[#0a0a0a]">Workspace</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1c1c1c]">Workspace</h1>
             <p className="text-sm text-gray-500 mt-1">Manage and optimize your career documents</p>
           </div>
           <Link href="/builder" className="btn-primary gap-2 h-9 px-4">
@@ -124,7 +124,7 @@ export default function DashboardPage() {
         </header>
 
         {error && (
-          <div className="mb-8 p-4 bg-red-50 border border-red-100 rounded-none flex items-center gap-3">
+          <div className="mb-8 p-4 bg-red-50 border border-red-100 rounded-md flex items-center gap-3">
             <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
             <span className="text-red-700 text-sm">{error}</span>
           </div>
@@ -142,10 +142,10 @@ export default function DashboardPage() {
                 <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
               </div>
             ) : resumes.length === 0 ? (
-              <div className="card-base flex items-center justify-center h-48 text-center flex-col gap-2">
+              <div className="card-base flex items-center justify-center h-48 text-center flex-col gap-2 shadow-sm rounded-xl">
                 <FileText className="h-6 w-6 text-gray-300" />
                 <p className="text-sm text-gray-500">No resumes found.</p>
-                <Link href="/builder" className="text-sm font-medium text-[#0a0a0a] hover:underline">Create your first resume</Link>
+                <Link href="/builder" className="text-sm font-medium text-[#4f0f62] hover:underline">Create your first resume</Link>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -153,11 +153,11 @@ export default function DashboardPage() {
                   <div key={r.id} className="card-base flex flex-col gap-4 group">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 flex items-center justify-center bg-gray-50 border border-gray-200 rounded-none text-gray-500">
+                        <div className="h-10 w-10 flex items-center justify-center bg-gray-50 border border-gray-200 rounded-md text-gray-500">
                           <FileText size={20} />
                         </div>
                         <div>
-                          <h3 className="text-sm font-bold text-[#0a0a0a] truncate max-w-[160px]">{r.title || r.file_name || 'Untitled Resume'}</h3>
+                          <h3 className="text-sm font-bold text-[#1c1c1c] truncate max-w-[160px]">{r.title || r.file_name || 'Untitled Resume'}</h3>
                           <p className="text-xs text-gray-500">Mapped as Version {r.version}</p>
                         </div>
                       </div>
@@ -168,9 +168,9 @@ export default function DashboardPage() {
                         Updated {new Date(r.updated_at).toLocaleDateString()}
                       </span>
                       <div className="flex gap-2">
-                        <button onClick={() => handleDelete(r.id)} className="text-xs text-gray-400 hover:text-red-600 transition-colors">Delete</button>
-                        <button onClick={() => handleDuplicate(r.id, r.title)} className="text-xs text-gray-400 hover:text-[#0a0a0a] transition-colors">Duplicate</button>
-                        <Link href={`/dashboard/${r.id}/ats`} className="text-xs font-medium text-[#0a0a0a] hover:underline ml-2">Optimize</Link>
+                        <button onClick={() => handleDelete(r.id)} className="text-xs font-medium text-gray-400 hover:text-red-600 transition-colors">Delete</button>
+                        <button onClick={() => handleDuplicate(r.id, r.title)} className="text-xs font-medium text-gray-400 hover:text-[#1c1c1c] transition-colors">Duplicate</button>
+                        <Link href={`/dashboard/${r.id}/ats`} className="text-xs font-medium text-[#4f0f62] hover:underline ml-2">Optimize</Link>
                       </div>
                     </div>
                   </div>
@@ -197,16 +197,16 @@ export default function DashboardPage() {
               ) : (
                 <>
                   <UploadCloud className="h-8 w-8 text-gray-400 mb-3" />
-                  <h3 className="text-sm font-bold text-[#0a0a0a] mb-1">Upload & Parse</h3>
+                  <h3 className="text-sm font-bold text-[#1c1c1c] mb-1">Upload & Parse</h3>
                   <p className="text-xs text-gray-500 px-4">Drop your existing PDF/DOCX to extract into the builder.</p>
                 </>
               )}
             </div>
 
-            <div className="card-base bg-[#0a0a0a] text-white border-0 flex flex-col justify-between">
+            <div className="card-base bg-[#121213] text-white border-0 flex flex-col justify-between">
               <div>
                 <h3 className="text-sm font-bold mb-1 flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-yellow-400" /> ATS Scoring
+                  <Zap className="h-4 w-4 text-[#ffc629]" /> ATS Scoring
                 </h3>
                 <p className="text-xs text-gray-400 mb-4 leading-relaxed">
                   Select any resume from your library and score it against a specific job description instantly.
