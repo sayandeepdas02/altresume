@@ -10,6 +10,8 @@ urlpatterns = [
     path('api/jd/', include('jd.urls')),
     path('api/optimize/', include('optimization.urls')),
     path('api/export/', include('export.urls')),
+    path('api/career/', include('career.urls')),
+    path('api/extension/', include('career.extension_urls')),
 ]
 
 if settings.DEBUG:

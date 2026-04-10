@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { Panel, PanelContent } from "@/components/ui/panel";
 import Link from "next/link";
 import { Twitter, Github, Linkedin } from "lucide-react";
@@ -50,8 +51,8 @@ export function MinimalFooter() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 mb-16">
                     <div className="lg:col-span-2">
                         <Link href="/" className="inline-flex items-center gap-2 group mb-6">
-                            <div className="h-6 w-6 bg-[#ffc629] rounded-md flex items-center justify-center transition-transform group-hover:scale-110 border border-[#1c1c1c]/10 shadow-sm">
-                                <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-[#1c1c1c]" stroke="currentColor" strokeWidth="3"><path d="M12 2L2 22h20L12 2z"/></svg>
+                            <div className="h-7 w-7 relative overflow-hidden rounded-md transition-transform group-hover:scale-110 border border-[#1c1c1c]/10 shadow-sm shrink-0">
+                                <Image src="/logo.png" alt="AltResume Logo" fill className="object-cover" sizes="28px" />
                             </div>
                             <span className="font-bold text-[#4f0f62] text-xl tracking-tight text-balance">AltResume</span>
                         </Link>

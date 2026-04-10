@@ -28,7 +28,7 @@ export function MinimalHero() {
                 
                 <div className="flex items-center gap-4">
                     <Link 
-                        href="/signin" 
+                        href="/sign" 
                         className="inline-flex items-center justify-center px-6 py-2.5 bg-[#4f0f62] text-[#f4efe9] text-sm font-medium rounded-md hover:bg-[#3d0b4d] transition-colors focus:ring-2 focus:ring-[#4f0f62] focus:ring-offset-2 ring-offset-[#f4efe9]"
                     >
                         Start Applying Automatically

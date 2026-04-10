@@ -66,3 +66,23 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.email
+
+class UserProfile(models.Model):
+    _id = models.ObjectIdField()
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    
+    # Onboarding Details
+    experience_level = models.CharField(max_length=50, blank=True, null=True)
+    target_job_roles = models.JSONField(default=list, blank=True, help_text='E.g. ["Software Engineer", "Product Manager"]')
+    preferred_locations = models.JSONField(default=list, blank=True, help_text='E.g. ["Remote", "New York", "London"]')
+    portfolio_url = models.URLField(blank=True, null=True)
+    github_url = models.URLField(blank=True, null=True)
+    
+    # Advanced Settings
+    auto_mode_enabled = models.BooleanField(default=False, help_text='Daily scans, evaluates jobs, and preps applications')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Profile for {self.user.email}"

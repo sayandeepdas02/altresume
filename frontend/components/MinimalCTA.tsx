@@ -19,7 +19,7 @@ export function MinimalCTA() {
                <p className="text-xl text-white/80 max-w-xl mb-10 text-balance">
                  Stop spending hours tailoring resumes manually.
                </p>
-               <Link href="/signin" className="inline-flex items-center justify-center px-8 py-4 bg-[#ffc629] text-[#1c1c1c] font-bold rounded-md hover:bg-[#e5b022] hover:-translate-y-1 transition-all text-sm shadow-[0_4px_0_0_#d59f13]">
+               <Link href="/sign" className="inline-flex items-center justify-center px-8 py-4 bg-[#ffc629] text-[#1c1c1c] font-bold rounded-md hover:bg-[#e5b022] hover:-translate-y-1 transition-all text-sm shadow-[0_4px_0_0_#d59f13]">
                  Get Started Free
                </Link>
             </PanelContent>

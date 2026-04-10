@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { LogOut } from 'lucide-react';
@@ -13,8 +14,8 @@ export default function Navbar() {
     <Panel className="mx-auto max-w-7xl w-full sticky top-0 z-50 bg-[#f4efe9]/80 backdrop-blur-md border-b border-[#1c1c1c]/10">
       <PanelContent className="py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="h-6 w-6 bg-[#ffc629] rounded-md flex items-center justify-center transition-transform group-hover:scale-110 border border-[#1c1c1c]/10 shadow-sm">
-            <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-[#1c1c1c]" stroke="currentColor" strokeWidth="3"><path d="M12 2L2 22h20L12 2z"/></svg>
+          <div className="h-7 w-7 relative overflow-hidden rounded-md transition-transform group-hover:scale-110 border border-[#1c1c1c]/10 shadow-sm shrink-0">
+            <Image src="/logo.png" alt="AltResume Logo" fill className="object-cover" priority sizes="28px" />
           </div>
           <span className="font-bold text-[#4f0f62] text-base tracking-tight text-balance">AltResume</span>
         </Link>
@@ -36,9 +37,8 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-4 ml-2">
-              <Link href="/signin" className="hover:text-[#4f0f62] transition-colors font-semibold">Log in</Link>
               <Link 
-                href="/signup" 
+                href="/sign" 
                 className="inline-flex items-center justify-center px-4 py-2 bg-[#ffc629] text-[#1c1c1c] text-sm font-semibold rounded-md hover:bg-[#e5b022] transition-colors border border-[#1c1c1c]/10 shadow-sm"
               >
                 Get Started

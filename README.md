@@ -12,6 +12,7 @@ AltResume is a production-grade AI-powered SaaS application designed to help job
 - **AI-Powered Optimization**: Compares your resume against the JD, generates an ATS match score, identifies missing keywords, and rewrites bullet points for maximum impact without hallucinating fake experience.
 - **Tiered Token System**: Built-in pricing tier logic (Free, Pro, Premium, Elite) with token limits and automatic usage deduction.
 - **High-Quality PDF Exports**: Generates clean, professional, ATS-friendly PDF exports using custom templates and dynamic filenames.
+- **Autonomous Career Pipeline**: Integrated with the Career-Ops engine to automatically scan job portals, execute high-fidelity Mistral/Qwen 0-100% scoring evaluations, and track your applications in isolated workspaces.
 - **Premium UI/UX**: Built with a sleek, Stripe-inspired Next.js frontend, featuring smooth micro-interactions, Inter typography, and a refined light-mode aesthetic.
 
 ---
@@ -37,10 +38,11 @@ AltResume is a production-grade AI-powered SaaS application designed to help job
 ## ⚙️ Local Development Setup
 
 ### Prerequisites
-- Node.js (v18+)
-- Python (3.10+)
+- Node.js (v20+)
+- Python (3.9+)
 - MongoDB (Running locally or via Atlas)
 - Redis server (Running locally on `redis://localhost:6379`)
+- Playwright browsers (for Career-Ops PDFs)
 
 ### 1. Clone the repository
 ```bash
@@ -123,6 +125,7 @@ The system is decoupled into two primary domains:
    - `core`: Base settings, custom DRF global exception handling, and throttling.
    - `authentication` & `users`: Google OAuth flows, custom JWT mapping to MongoDB ObjectIds, and tier/token definition.
    - `resumes`: Safe document ingestion (file validation) and parsing.
+   - `career`: Autonomous job hunting pipeline wrapper executing isolated Node.js (Career-Ops) web scraping, headless Playwright PDF generation, and async workflow tracking.
    - `optimization`: Interacts with OpenAI using strict, fail-safe JSON schema properties. Offloads heavy processing (~10s) to Redis/Celery to guarantee UI responsiveness.
    - `export`: Injects AI-optimized content into dynamic HTML templates and outputs binary PDFs.
 

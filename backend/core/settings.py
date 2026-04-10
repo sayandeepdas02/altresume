@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -19,6 +20,11 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Ensure the root project directory is on sys.path so 'services' package is importable
+PROJECT_ROOT = BASE_DIR.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 
 # Quick-start development settings - unsuitable for production
@@ -55,6 +61,7 @@ INSTALLED_APPS = [
     'jd',
     'optimization',
     'export',
+    'career',
 ]
 
 MIDDLEWARE = [
@@ -98,7 +105,7 @@ DATABASES = {
         'NAME': 'ai_resume_optimizer',
         'ENFORCE_SCHEMA': False,
         'CLIENT': {
-            'host': os.getenv('MONGO_URI', 'mongodb://localhost:27017')
+            'host': os.getenv('MONGO_URI', 'mongodb://127.0.0.1:27017')
         }
     }
 }
@@ -180,9 +187,13 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Celery Configuration for Async Workers
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://127.0.0.1:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://127.0.0.1:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+# Career-Ops Integration
+CAREER_OPS_ROOT = os.getenv('CAREER_OPS_ROOT', str(BASE_DIR.parent / 'career_ops'))
+CAREER_OPS_WORKSPACES = os.getenv('CAREER_OPS_WORKSPACES', str(BASE_DIR / 'career_ops_workspaces'))
 
 
