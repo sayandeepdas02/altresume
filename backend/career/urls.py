@@ -10,6 +10,12 @@ from .views import (
     JobDetailView,
     ApplyJobView,
     ApplicationListView,
+    OutreachView,
+    AnalyticsView,
+    BatchEvaluateView,
+    DeepResearchView,
+    ExtensionOptimizeView,
+    ExtensionFormAssistView,
 )
 
 urlpatterns = [
@@ -32,4 +38,15 @@ urlpatterns = [
     # Applications
     path('apply', ApplyJobView.as_view(), name='career-apply'),
     path('applications', ApplicationListView.as_view(), name='career-applications'),
+
+    # New: Outreach, Analytics, Batch, Research
+    path('outreach', OutreachView.as_view(), name='career-outreach'),
+    path('analytics', AnalyticsView.as_view(), name='career-analytics'),
+    path('batch-evaluate', BatchEvaluateView.as_view(), name='career-batch-evaluate'),
+    path('deep-research', DeepResearchView.as_view(), name='career-deep-research'),
+
+    # Chrome Extension
+    path('extension/optimize', ExtensionOptimizeView.as_view(), name='career-extension-optimize'),
+    path('extension/assist', ExtensionFormAssistView.as_view(), name='career-extension-assist'),
 ]
+

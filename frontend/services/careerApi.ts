@@ -380,3 +380,192 @@ export async function getInterviewPrep(params: {
     },
   };
 }
+
+// ---------------------------------------------------------------------------
+// LinkedIn Outreach — Backend-first, mock-fallback
+// ---------------------------------------------------------------------------
+
+export interface OutreachResult {
+  connection_note: string;
+  message: string;
+  subject: string;
+  targets: Array<{ name: string; role: string; priority: string }>;
+  status: string;
+}
+
+export async function generateOutreach(params: {
+  job_description?: string;
+  job_listing_id?: string;
+  contact_name?: string;
+  contact_role?: string;
+  company?: string;
+  role?: string;
+}): Promise<ApiResult<OutreachResult> & { source: 'backend' | 'mock' }> {
+  const real = await safeFetch<OutreachResult>('/api/career/outreach', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  if (real.success) return { ...real, source: 'backend' };
+
+  const mock = await safeFetch<OutreachResult>('/api/outreach/generate', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  return { ...mock, source: 'mock' };
+}
+
+// ---------------------------------------------------------------------------
+// Application Analytics — Backend-first, mock-fallback
+// ---------------------------------------------------------------------------
+
+export interface AnalyticsData {
+  has_data: boolean;
+  total_jobs: number;
+  total_applications: number;
+  funnel: Record<string, number>;
+  score_stats: { avg: number; total_scored: number };
+  score_buckets: Record<string, number>;
+  recommendation_breakdown: Record<string, number>;
+  archetype_performance: Record<string, {
+    total: number; applied: number; interview: number; offer: number; rejected: number;
+  }>;
+  top_skill_gaps: Array<{ skill: string; frequency: number }>;
+  application_statuses: Record<string, number>;
+  recommendations: Array<{ action: string; impact: string; reasoning: string }>;
+}
+
+export async function getAnalytics(): Promise<ApiResult<AnalyticsData> & { source: 'backend' | 'mock' }> {
+  const real = await safeFetch<AnalyticsData>('/api/career/analytics');
+  if (real.success) return { ...real, source: 'backend' };
+
+  const mock = await safeFetch<AnalyticsData>('/api/analytics/patterns');
+  return { ...mock, source: 'mock' };
+}
+
+// ---------------------------------------------------------------------------
+// Batch Evaluation — Backend-first, mock-fallback
+// ---------------------------------------------------------------------------
+
+export interface BatchResult {
+  total: number;
+  completed?: number;
+  queued?: number;
+  results: Array<{
+    index: number;
+    role: string;
+    company: string;
+    match_score?: number;
+    recommendation?: string;
+    matched_skills?: string[];
+    missing_skills?: string[];
+    fit_summary?: string;
+    pipeline_run_id?: string;
+    task_id?: string;
+    status: string;
+    error?: string;
+  }>;
+  message?: string;
+}
+
+export async function batchEvaluate(
+  jobDescriptions: Array<{ role: string; company: string; description: string }>
+): Promise<ApiResult<BatchResult> & { source: 'backend' | 'mock' }> {
+  const real = await safeFetch<BatchResult>('/api/career/batch-evaluate', {
+    method: 'POST',
+    body: JSON.stringify({ job_descriptions: jobDescriptions }),
+  });
+  if (real.success) return { ...real, source: 'backend' };
+
+  const mock = await safeFetch<BatchResult>('/api/batch/evaluate', {
+    method: 'POST',
+    body: JSON.stringify({ job_descriptions: jobDescriptions }),
+  });
+  return { ...mock, source: 'mock' };
+}
+
+// ---------------------------------------------------------------------------
+// Deep Company Research — Backend-first, mock-fallback
+// ---------------------------------------------------------------------------
+
+export interface ResearchAxis {
+  title: string;
+  queries?: string[];
+  questions: string[];
+  candidate_skills?: string[];
+  candidate_experience?: string[];
+}
+
+export interface DeepResearchResult {
+  company: string;
+  role: string;
+  research_axes: Record<string, ResearchAxis>;
+  status: string;
+}
+
+export async function getDeepResearch(params: {
+  company: string;
+  role?: string;
+  job_listing_id?: string;
+}): Promise<ApiResult<DeepResearchResult> & { source: 'backend' | 'mock' }> {
+  const real = await safeFetch<DeepResearchResult>('/api/career/deep-research', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  if (real.success) return { ...real, source: 'backend' };
+
+  const mock = await safeFetch<DeepResearchResult>('/api/research/deep', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  return { ...mock, source: 'mock' };
+}
+
+// ---------------------------------------------------------------------------
+// Resume Optimization Results — Backend-first
+// ---------------------------------------------------------------------------
+
+export async function getOptimizationResults(params: {
+  job_listing_id?: string;
+  job_description?: string;
+  resume_id?: string;
+}): Promise<ApiResult<OptimizationResult>> {
+  const result = await safeFetch<any>('/api/career/optimize', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+
+  if (result.success && result.data) {
+    return result as ApiResult<OptimizationResult>;
+  }
+
+  // Mock fallback
+  await new Promise(r => setTimeout(r, 1200));
+  const jd = params.job_description || '';
+  const skills = extractSkills(jd);
+  return {
+    success: true,
+    error: null,
+    data: {
+      optimized_summary: `Results-driven engineer with deep expertise in ${skills.slice(0, 3).join(', ') || 'full-stack development'}, specializing in building production-grade systems at scale. Proven track record of shipping AI-powered applications used by thousands of users.`,
+      skill_additions: skills.filter((_, i) => i % 2 === 0).slice(0, 4),
+      bullet_rewrites: [
+        {
+          section: 'Experience',
+          original: 'Built web applications using modern frameworks',
+          optimized: `Architected and shipped ${skills[0] || 'production'}-powered platform, reducing page load time by 40% and increasing user engagement by 25%`,
+        },
+        {
+          section: 'Experience',
+          original: 'Implemented backend services',
+          optimized: `Designed and deployed ${skills[1] || 'microservices'} architecture handling 10K+ RPM with 99.9% uptime SLA`,
+        },
+      ],
+      ats_keywords_to_add: skills.slice(0, 6),
+      overall_strategy: `Focus on quantifying impact. Lead with ${skills[0] || 'your primary stack'} experience since it is the #1 requirement. Reframe backend work as system design.`,
+      match_score: 72,
+      recommendation: 'APPLY',
+      status: 'success',
+    },
+  };
+}
+

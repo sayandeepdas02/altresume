@@ -4,6 +4,7 @@ import { useState } from 'react';
 import {
   X, Building, MapPin, DollarSign, Clock, ExternalLink, CheckCircle,
   Loader2, Zap, BookOpen, AlertTriangle, TrendingUp, Sparkles,
+  Linkedin, Globe2
 } from 'lucide-react';
 
 interface JobDetailModalProps {
@@ -14,6 +15,8 @@ interface JobDetailModalProps {
   onApply: (job: any) => void;
   onOptimize: (job: any) => void;
   onInterviewPrep: (job: any) => void;
+  onOutreach: (job: any) => void;
+  onDeepResearch: (job: any) => void;
 }
 
 function ScoreBadge({ score, size = 'md' }: { score: number; size?: 'sm' | 'md' | 'lg' }) {
@@ -24,7 +27,7 @@ function ScoreBadge({ score, size = 'md' }: { score: number; size?: 'sm' | 'md' 
   return <span className={`${textSize} font-bold px-3 py-1 rounded-full border ${color}`}>{score}%</span>;
 }
 
-export default function JobDetailModal({ isOpen, job, isApplied, onClose, onApply, onOptimize, onInterviewPrep }: JobDetailModalProps) {
+export default function JobDetailModal({ isOpen, job, isApplied, onClose, onApply, onOptimize, onInterviewPrep, onOutreach, onDeepResearch }: JobDetailModalProps) {
   const [applyingHere, setApplyingHere] = useState(false);
 
   if (!isOpen || !job) return null;
@@ -81,27 +84,38 @@ export default function JobDetailModal({ isOpen, job, isApplied, onClose, onAppl
           </div>
 
           {/* Action Bar */}
-          <div className="flex items-center gap-2 mt-4 flex-wrap">
-            {isApplied ? (
-              <span className="text-xs font-bold text-green-600 bg-green-50 border border-green-200 px-4 py-2 rounded-md flex items-center gap-1.5">
-                <CheckCircle size={14} /> Applied
-              </span>
-            ) : (
-              <button onClick={handleApply} disabled={applyingHere} className="text-xs font-bold bg-[#4f0f62] text-white px-4 py-2 rounded-md hover:bg-purple-900 transition-colors disabled:opacity-50 flex items-center gap-1.5">
-                {applyingHere ? <Loader2 size={14} className="animate-spin" /> : <ExternalLink size={14} />} Apply Now
+          <div className="flex flex-col gap-2 mt-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              {isApplied ? (
+                <span className="text-xs font-bold text-green-600 bg-green-50 border border-green-200 px-4 py-2 rounded-md flex items-center gap-1.5">
+                  <CheckCircle size={14} /> Applied
+                </span>
+              ) : (
+                <button onClick={handleApply} disabled={applyingHere} className="text-xs font-bold bg-[#4f0f62] text-white px-4 py-2 rounded-md hover:bg-purple-900 transition-colors disabled:opacity-50 flex items-center gap-1.5">
+                  {applyingHere ? <Loader2 size={14} className="animate-spin" /> : <ExternalLink size={14} />} Apply Now
+                </button>
+              )}
+              <button onClick={() => onOptimize(job)} className="text-xs font-semibold bg-[#ffc629] text-[#1c1c1c] px-4 py-2 rounded-md hover:bg-[#e5b022] transition-colors flex items-center gap-1.5 border border-[#1c1c1c]/10">
+                <Sparkles size={14} /> Optimize Resume
               </button>
-            )}
-            <button onClick={() => onOptimize(job)} className="text-xs font-semibold bg-[#ffc629] text-[#1c1c1c] px-4 py-2 rounded-md hover:bg-[#e5b022] transition-colors flex items-center gap-1.5 border border-[#1c1c1c]/10">
-              <Sparkles size={14} /> Optimize Resume
-            </button>
-            <button onClick={() => onInterviewPrep(job)} className="text-xs font-semibold text-gray-700 bg-gray-100 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors flex items-center gap-1.5 border border-gray-200">
-              <BookOpen size={14} /> Interview Prep
-            </button>
-            {job.url && (
-              <a href={job.url} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 ml-auto">
-                <ExternalLink size={12} /> Original Listing
-              </a>
-            )}
+              {job.url && (
+                <a href={job.url} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1 ml-auto">
+                  <ExternalLink size={12} /> Original Listing
+                </a>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <button gap-1.5 onClick={() => onInterviewPrep(job)} className="text-xs font-semibold text-gray-700 bg-gray-100 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors flex items-center gap-1.5 border border-gray-200">
+                <BookOpen size={14} /> Interview Prep
+              </button>
+              <button onClick={() => onDeepResearch(job)} className="text-xs font-semibold text-indigo-700 bg-indigo-50 px-4 py-2 rounded-md hover:bg-indigo-100 transition-colors flex items-center gap-1.5 border border-indigo-200">
+                <Globe2 size={14} /> Deep Research
+              </button>
+              <button onClick={() => onOutreach(job)} className="text-xs font-semibold text-blue-700 bg-blue-50 px-4 py-2 rounded-md hover:bg-blue-100 transition-colors flex items-center gap-1.5 border border-blue-200">
+                <Linkedin size={14} /> Outreach
+              </button>
+            </div>
           </div>
         </div>
 
@@ -210,3 +224,4 @@ export default function JobDetailModal({ isOpen, job, isApplied, onClose, onAppl
     </div>
   );
 }
+

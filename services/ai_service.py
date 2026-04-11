@@ -588,3 +588,43 @@ Respond with ONLY valid JSON:
             "questions_to_ask": [],
             "status": "failed",
         }
+
+# ---------------------------------------------------------------------------
+# 7. Form Application Assist
+# ---------------------------------------------------------------------------
+
+def generate_form_answers(resume_data: dict, form_fields: list, company_name: str = "", job_role: str = "") -> dict:
+    """Generate exact string answers to inject into web forms."""
+    resume_json = json.dumps(resume_data, indent=2)[:4000]
+    fields_json = json.dumps(form_fields, indent=2)
+
+    prompt = f"""You are an AI assistant helping a candidate auto-fill an online job application form for {job_role} at {company_name}.
+    
+Resume: {resume_json}
+
+Available Form Fields: {fields_json}
+
+Rules:
+- For each field, return a single string representing the best answer based on the resume.
+- For select dropdowns or radio buttons, attempt to exactly match one of the available options if provided.
+- If a field asks for years of experience, return a number string (e.g., "5").
+- If the resume lacks the information, return a blank string "".
+- Provide ONLY valid JSON mapping the field id or name to the answer.
+
+Example Response format:
+{{
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john@example.com",
+    "linkedin_url": "https://linkedin.com/in/johndoe",
+    "q_12345": "Yes, I am authorized to work in the US without sponsorship."
+}}
+"""
+
+    try:
+        raw = _generate(prompt, max_tokens=1500, temperature=0.1)
+        result = _safe_json_parse(raw)
+        return result
+    except Exception as exc:
+        logger.error("[AI] Form generation failed: %s", exc)
+        return {}

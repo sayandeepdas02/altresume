@@ -1,36 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 320px; padding: 15px; background: #0f1115; color: white; margin: 0; }
-        h2 { font-size: 16px; margin-top: 0; font-weight: 600; color: #fff; border-bottom: 1px solid #333; padding-bottom: 10px;}
-        input { width: 90%; padding: 8px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #333; background: #1a1b23; color: white; }
-        button { width: 100%; padding: 10px; background: #4f46e5; border: none; font-weight: bold; color: white; border-radius: 6px; cursor: pointer; transition: 0.2s;}
-        button:hover { background: #4338ca; }
-        button:disabled { background: #374151; cursor: not-allowed; }
-        #status { margin-top: 15px; font-size: 12px; color: #9ca3af; text-align: center; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 340px; padding: 15px; background: #0f1115; color: white; margin: 0; }
+        h2 { font-size: 16px; margin-top: 0; font-weight: 600; color: #fff; border-bottom: 1px solid #333; padding-bottom: 10px; display: flex; align-items: center; gap: 8px;}
+        input { width: 90%; padding: 8px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #333; background: #1a1b23; color: white; font-size: 11px;}
+        button { width: 100%; padding: 10px; border: none; font-weight: bold; color: white; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 13px; margin-bottom: 8px;}
+        .btn-primary { background: #4f46e5; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-secondary { background: #ffc629; color: #1c1c1c; }
+        .btn-secondary:hover { background: #e5b022; }
+        button:disabled { background: #374151; color: #9ca3af; cursor: not-allowed; }
+        #status { margin-top: 10px; font-size: 12px; color: #9ca3af; text-align: center; min-height: 16px;}
         .success { color: #10b981 !important; }
         .error { color: #ef4444 !important; }
-        .result-box { margin-top: 15px; background: #111; padding: 10px; border-radius: 6px; border: 1px solid #333; display: none; }
+        .result-box { margin-top: 10px; background: #111; padding: 12px; border-radius: 6px; border: 1px solid #333; display: none; }
         .result-title { font-size: 11px; color: #6366f1; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; font-weight: bold;}
         .result-score { font-size: 24px; font-weight: bold; color: #10b981;}
+        .hint { font-size: 10px; color: #6b7280; text-align: center; margin-top: 8px;}
     </style>
 </head>
 <body>
-    <h2>🚀 AltResume Optimizer</h2>
+    <h2>🚀 AltResume Extension</h2>
     
-    <label style="font-size: 11px; color: #9ca3af; margin-bottom: 4px; display: block;">AltResume App JWT (Access Token)</label>
+    <label style="font-size: 11px; color: #9ca3af; margin-bottom: 4px; display: block;">AltResume JWT (Access Token)</label>
     <input type="password" id="jwtToken" placeholder="Paste your eyJ... token here" />
-    
-    <button id="optimizeBtn">Optimize Current LinkedIn Job</button>
+
+    <div style="display: flex; gap: 8px;">
+        <button id="optimizeBtn" class="btn-primary">Optimize JD</button>
+        <button id="fillBtn" class="btn-secondary">Auto-Fill Form</button>
+    </div>
     
     <div id="status">Ready.</div>
     
     <div class="result-box" id="resultBox">
         <div class="result-title">AI Engine Match Score</div>
         <div class="result-score" id="matchScore">--%</div>
-        <a href="http://localhost:3000/dashboard" target="_blank" style="display: block; margin-top: 10px; color: #818cf8; text-decoration: none; font-size: 12px; text-align: center;">Open Dashboard for PDF</a>
+        <a href="http://localhost:3000/dashboard" target="_blank" style="display: block; margin-top: 10px; color: #818cf8; text-decoration: none; font-size: 12px; text-align: center;">Open Dashboard for details</a>
     </div>
+
+    <p class="hint">Ensure your local AltResume backend is running on port 8000.</p>
     
     <script src="popup.js"></script>
 </body>

@@ -22,9 +22,14 @@ import EvaluateJDModal from '@/components/modals/EvaluateJDModal';
 import CareerProfileModal from '@/components/modals/CareerProfileModal';
 import JobDetailModal from '@/components/modals/JobDetailModal';
 import InterviewPrepModal from '@/components/modals/InterviewPrepModal';
+import BatchProcessModal from '@/components/modals/BatchProcessModal';
+import DeepResearchModal from '@/components/modals/DeepResearchModal';
+import OutreachModal from '@/components/modals/OutreachModal';
+import OptimizationResultModal from '@/components/modals/OptimizationResultModal';
 
 // Dashboard Components
 import ResumeIntelligenceCard from '@/components/dashboard/ResumeIntelligenceCard';
+import AnalyticsDashboard from '@/components/dashboard/AnalyticsDashboard';
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -75,6 +80,10 @@ export default function DashboardPage() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isJobDetailOpen, setIsJobDetailOpen] = useState(false);
   const [isInterviewPrepOpen, setIsInterviewPrepOpen] = useState(false);
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+  const [isDeepResearchOpen, setIsDeepResearchOpen] = useState(false);
+  const [isOutreachOpen, setIsOutreachOpen] = useState(false);
+  const [isOptimizationOpen, setIsOptimizationOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<any>(null);
 
   // --- Resume Library ---
@@ -186,14 +195,21 @@ export default function DashboardPage() {
   };
 
   const handleOptimize = (job: any) => {
-    // Navigate to builder with optimization context
-    const resumeId = resumes[0]?.id;
-    if (resumeId) {
-      router.push(`/builder?id=${resumeId}&optimize_jd=${encodeURIComponent(job.description || job.raw_jd || job.role)}`);
-    } else {
-      setError('Upload a resume first to optimize.');
-      setTimeout(() => setError(''), 3000);
-    }
+    setSelectedJob(job);
+    setIsJobDetailOpen(false);
+    setIsOptimizationOpen(true);
+  };
+
+  const handleDeepResearch = (job: any) => {
+    setSelectedJob(job);
+    setIsJobDetailOpen(false);
+    setIsDeepResearchOpen(true);
+  };
+
+  const handleOutreach = (job: any) => {
+    setSelectedJob(job);
+    setIsJobDetailOpen(false);
+    setIsOutreachOpen(true);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -487,12 +503,34 @@ export default function DashboardPage() {
                   )}
                 </section>
 
-                {/* Resume Intelligence */}
+                {/* Chrome Extension Download Card */}
+                <section>
+                  <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl border border-indigo-100 p-5 flex flex-col sm:flex-row gap-4 items-center sm:items-start justify-between">
+                     <div className="flex flex-col gap-1.5">
+                       <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                         🚀 Live Application Assist Extension
+                       </h3>
+                       <p className="text-xs text-gray-600 leading-relaxed max-w-sm">
+                         Auto-scan LinkedIn postings and magically auto-fill Greenhouse, Lever, and Workday forms with your exact optimized resume context.
+                       </p>
+                     </div>
+                     <div className="shrink-0 flex flex-col gap-2 w-full sm:w-auto">
+                       <a href="/extension.zip" download className="text-xs font-bold bg-[#4f0f62] text-white px-4 py-2 rounded-md hover:bg-purple-900 transition-colors text-center shadow-sm">
+                         Download Unpacked (.zip)
+                       </a>
+                       <button onClick={() => alert('To install: \\n1. Unzip the downloaded file.\\n2. Open chrome://extensions\\n3. Enable Developer Mode\\n4. Click "Load unpacked" and select the folder.')} className="text-[10px] text-gray-500 hover:text-gray-900 underline text-center">
+                         Installation Instructions
+                       </button>
+                     </div>
+                  </div>
+                </section>
+
+                {/* Analytics Dashboard Replaces Resume Intelligence */}
                 <section>
                   <h2 className="text-sm font-bold uppercase tracking-wider text-gray-800 mb-4 flex items-center gap-2">
-                    <Brain size={18} className="text-[#4f0f62]" /> Resume Intelligence
+                    <Brain size={18} className="text-[#4f0f62]" /> Pattern Analytics
                   </h2>
-                  <ResumeIntelligenceCard resumeId={primaryResumeId} />
+                  <AnalyticsDashboard />
                 </section>
               </div>
 
